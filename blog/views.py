@@ -20,6 +20,7 @@ class Create(CreateView):
     
     # 編集対象にするフィールド
     fields = ["title", "body", "category", "tags"]
+    success_url = "/"
 
 from django.views.generic.edit import UpdateView
 

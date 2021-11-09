@@ -54,6 +54,8 @@ class Post(models.Model):
         Tag,
         blank=True)
 
+    published = models.BooleanField(default=True)
+
     def __str__(self):
         return self.title
 
