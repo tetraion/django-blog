@@ -22,9 +22,14 @@ mypage_site.register(models.Tag)
 mypage_site.register(models.Category)
 
 
+class PostInline(admin.TabularInline):
+    model = models.Post
+    fields = ('title', 'body')
+    extra = 1
+
 @admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
-    pass
+    inlines = [PostInline]
 
 
 @admin.register(models.Tag)
@@ -47,8 +52,42 @@ class PostTitleFilter(admin.SimpleListFilter):
             ("開発", "「開発」を含む"),
         ]
 
+from django import forms
+
+class PostAdminForm(forms.ModelForm):
+    class Meta:
+        labels = {
+            'title': 'ブログタイトル',
+        }
+
+    def clean(self):
+        body = self.cleaned_data.get('body')
+        if '<' in body:
+            raise forms.ValidationError('HTMLタグは使えません。')
+    
+
 @admin.register(models.Post)
 class PostAdmin(admin.ModelAdmin):
+    # 個別
+    readonly_fields = ('created', 'updated')
+    fieldsets = [
+        (None, {'fields': ('title', )}),
+        ('コンテンツ', {'fields': ('body', )}),
+        ('分類', {'fields': ('category', 'tags')}),
+        ('メタ', {'fields': ('created', 'updated')})
+    ]
+    form = PostAdminForm
+    filter_horizontal = ('tags',)
+
+    def save_model(self, request, obj, form, change):
+        print("before save")
+        super().save_model(request, obj, form, change)
+        print("after save")
+
+    class Media:
+        js = ('post.js',)
+
+    # リスト
     list_display = ('id', 'title', 'category', 'tags_summary', 'published', 'created', 'updated')
     list_select_related = ('category', )
     list_editable = ('title', 'category')
