@@ -16,7 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.contrib.auth.models import Group
+
+#管理サイト表示設定（admin）
+admin.site.site_title = '匿名ブログ 内部管理サイト'
+admin.site.site_header = '匿名ブログ 内部管理サイト'
+admin.site.index_title = 'メニュー'
+#管理サイト非表示設定
+admin.site.unregister(Group)
+#管理サイトの削除アクションを非表示
+admin.site.disable_action('delete_selected')
+
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('staf-admin/', admin.site.urls),
     path('', include("blog.urls")),
 ]
